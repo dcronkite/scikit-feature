@@ -1,3 +1,7 @@
+from __future__ import division
+from __future__ import print_function
+from builtins import range
+from past.utils import old_div
 import scipy.io
 from skfeature.function.sparse_learning_based import UDFS
 from skfeature.utility import unsupervised_evaluation
@@ -34,8 +38,8 @@ def main():
         acc_total += acc
 
     # output the average NMI and average ACC
-    print 'NMI:', float(nmi_total)/20
-    print 'ACC:', float(acc_total)/20
+    print('NMI:', old_div(float(nmi_total),20))
+    print('ACC:', old_div(float(acc_total),20))
 
 if __name__ == '__main__':
     main()

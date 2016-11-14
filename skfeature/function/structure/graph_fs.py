@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import numpy as np
 
 
@@ -57,8 +62,8 @@ def graph_fs(X, y, **kwargs):
     else:
         lambda2 = kwargs['lambda2']
     if 'edge_list' not in kwargs:
-        print 'Error using function, the network structure E is required'
-        raise()
+        print('Error using function, the network structure E is required')
+        raise
     else :
         edge_list = kwargs['edge_list']
     if 'max_iter' not in kwargs:
@@ -106,17 +111,17 @@ def graph_fs(X, y, **kwargs):
     iter = 0
     obj = np.zeros((max_iter,1))
     while iter < max_iter:
-        print iter
+        print(iter)
         # update w
         b = np.dot(X.T, y) - mu - np.dot(T.T, v) + rho*np.dot(T.T,p) + rho*q
         w_hat = np.dot(Rtinv, b)
         w = np.dot(Rinv, w_hat)
 
         # update q
-        q = soft_threshold(w + 1/rho*mu, lambda1/rho)
+        q = soft_threshold(w + 1/rho*mu, old_div(lambda1,rho))
         # update p
 
-        p = soft_threshold(np.dot(T, w)+1/rho*v, lambda2/rho)
+        p = soft_threshold(np.dot(T, w)+1/rho*v, old_div(lambda2,rho))
         # update mu, v
         mu += rho*(w - q)
         v += rho*(np.dot(T, w) - p)
@@ -124,7 +129,7 @@ def graph_fs(X, y, **kwargs):
         # calculate objective function
         obj[iter] = calculate_obj(X, y, w, lambda1, lambda2, T)
         if verbose:
-            print 'obj at iter ' + str(iter) + ': ' + str(obj[iter])
+            print('obj at iter ' + str(iter) + ': ' + str(obj[iter]))
         iter += 1
     return w, obj, q
 

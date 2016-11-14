@@ -1,4 +1,5 @@
-import LCSI
+from __future__ import absolute_import
+from . import LCSI
 
 
 def jmi(X, y, **kwargs):
@@ -24,7 +25,7 @@ def jmi(X, y, **kwargs):
     ---------
     Brown, Gavin et al. "Conditional Likelihood Maximisation: A Unifying Framework for Information Theoretic Feature Selection." JMLR 2012.
     """
-    if 'n_selected_features' in kwargs.keys():
+    if 'n_selected_features' in list(kwargs.keys()):
         n_selected_features = kwargs['n_selected_features']
         F = LCSI.lcsi(X, y, function_name='JMI', n_selected_features=n_selected_features)
     else:

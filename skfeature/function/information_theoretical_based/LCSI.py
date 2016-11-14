@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 from skfeature.utility.entropy_estimators import *
 
 
@@ -39,11 +42,11 @@ def lcsi(X, y, **kwargs):
     # indicate whether the user specifies the number of features
     is_n_selected_features_specified = False
     # initialize the parameters
-    if 'beta' in kwargs.keys():
+    if 'beta' in list(kwargs.keys()):
         beta = kwargs['beta']
-    if 'gamma' in kwargs.keys():
+    if 'gamma' in list(kwargs.keys()):
         gamma = kwargs['gamma']
-    if 'n_selected_features' in kwargs.keys():
+    if 'n_selected_features' in list(kwargs.keys()):
         n_selected_features = kwargs['n_selected_features']
         is_n_selected_features_specified = True
 
@@ -77,12 +80,12 @@ def lcsi(X, y, **kwargs):
 
         # we assign an extreme small value to j_cmi to ensure it is smaller than all possible values of j_cmi
         j_cmi = -1000000000000
-        if 'function_name' in kwargs.keys():
+        if 'function_name' in list(kwargs.keys()):
             if kwargs['function_name'] == 'MRMR':
-                beta = 1.0 / len(F)
+                beta = old_div(1.0, len(F))
             elif kwargs['function_name'] == 'JMI':
-                beta = 1.0 / len(F)
-                gamma = 1.0 / len(F)
+                beta = old_div(1.0, len(F))
+                gamma = old_div(1.0, len(F))
         for i in range(n_features):
             if i not in F:
                 f = X[:, i]

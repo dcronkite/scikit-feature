@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import scipy
 import numpy as np
 from sklearn import linear_model
@@ -44,8 +47,8 @@ def mcfs(X, n_selected_features, **kwargs):
     # solve the generalized eigen-decomposition problem and get the top K
     # eigen-vectors with respect to the smallest eigenvalues
     W = W.toarray()
-    W = (W + W.T) / 2
-    W_norm = np.diag(np.sqrt(1 / W.sum(1)))
+    W = old_div((W + W.T), 2)
+    W_norm = np.diag(np.sqrt(old_div(1, W.sum(1))))
     W = np.dot(W_norm, np.dot(W, W_norm))
     WT = W.T
     W[W < WT] = WT[W < WT]

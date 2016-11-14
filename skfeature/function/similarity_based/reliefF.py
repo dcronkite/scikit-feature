@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
 
@@ -28,7 +31,7 @@ def reliefF(X, y, **kwargs):
     Zhao, Zheng et al. "On Similarity Preserving Feature Selection." TKDE 2013.
     """
 
-    if "k" not in kwargs.keys():
+    if "k" not in list(kwargs.keys()):
         k = 5
     else:
         k = kwargs["k"]
@@ -53,11 +56,11 @@ def reliefF(X, y, **kwargs):
         del c[c.index(y[idx])]
 
         p_dict = dict()
-        p_label_idx = float(len(y[y == y[idx]]))/float(n_samples)
+        p_label_idx = old_div(float(len(y[y == y[idx]])),float(n_samples))
 
         for label in c:
-            p_label_c = float(len(y[y == label]))/float(n_samples)
-            p_dict[label] = p_label_c/(1-p_label_idx)
+            p_label_c = old_div(float(len(y[y == label])),float(n_samples))
+            p_dict[label] = old_div(p_label_c,(1-p_label_idx))
             near_miss[label] = []
 
         distance_sort = []
@@ -82,7 +85,7 @@ def reliefF(X, y, **kwargs):
                     if len(near_miss[distance_sort[i][2]]) == k:
                         stop_dict[distance_sort[i][2]] = 1
             stop = True
-            for (key, value) in stop_dict.items():
+            for (key, value) in list(stop_dict.items()):
                     if value != 1:
                         stop = False
             if stop:
@@ -94,12 +97,12 @@ def reliefF(X, y, **kwargs):
             near_hit_term = np.array(abs(self_fea-X[ele, :]))+np.array(near_hit_term)
 
         near_miss_term = dict()
-        for (label, miss_list) in near_miss.items():
+        for (label, miss_list) in list(near_miss.items()):
             near_miss_term[label] = np.zeros(n_features)
             for ele in miss_list:
                 near_miss_term[label] = np.array(abs(self_fea-X[ele, :]))+np.array(near_miss_term[label])
-            score += near_miss_term[label]/(k*p_dict[label])
-        score -= near_hit_term/k
+            score += old_div(near_miss_term[label],(k*p_dict[label]))
+        score -= old_div(near_hit_term,k)
     return score
 
 

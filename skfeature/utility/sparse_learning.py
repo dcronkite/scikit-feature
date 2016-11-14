@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import numpy as np
 from numpy import linalg as LA
 
@@ -35,7 +38,7 @@ def generate_diagonal_matrix(U):
     """
     temp = np.sqrt(np.multiply(U, U).sum(1))
     temp[temp < 1e-16] = 1e-16
-    temp = 0.5 / temp
+    temp = old_div(0.5, temp)
     D = np.diag(temp)
     return D
 
@@ -107,8 +110,8 @@ def euclidean_projection(V, n_features, n_classes, z, gamma):
     """
     W_projection = np.zeros((n_features, n_classes))
     for i in range(n_features):
-        if LA.norm(V[i, :]) > z/gamma:
-            W_projection[i, :] = (1-z/(gamma*LA.norm(V[i, :])))*V[i, :]
+        if LA.norm(V[i, :]) > old_div(z,gamma):
+            W_projection[i, :] = (1-old_div(z,(gamma*LA.norm(V[i, :]))))*V[i, :]
         else:
             W_projection[i, :] = np.zeros(n_classes)
     return W_projection
@@ -148,7 +151,7 @@ def tree_lasso_projection(v, n_features, idx, n_nodes):
         two_norm = np.sqrt(two_norm)
         z = idx[2, i]
         if two_norm > z:
-            ratio = (two_norm - z) / two_norm
+            ratio = old_div((two_norm - z), two_norm)
             # shrinkage this group by ratio
             for j in range(start_idx, end_idx):
                 w_projection[j] *= ratio

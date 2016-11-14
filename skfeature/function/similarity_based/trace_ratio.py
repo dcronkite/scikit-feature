@@ -1,3 +1,7 @@
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from past.utils import old_div
 import numpy as np
 from skfeature.utility.construct_W import construct_W
 
@@ -36,7 +40,7 @@ def trace_ratio(X, y, n_selected_features, **kwargs):
     """
 
     # if 'style' is not specified, use the fisher score way to built two affinity matrix
-    if 'style' not in kwargs.keys():
+    if 'style' not in list(kwargs.keys()):
         kwargs['style'] = 'fisher'
     # get the way to build affinity matrix, 'fisher' or 'laplacian'
     style = kwargs['style']
@@ -52,7 +56,7 @@ def trace_ratio(X, y, n_selected_features, **kwargs):
         # build within class and between class laplacian matrix L_w and L_b
         W_within = construct_W(X, **kwargs_within)
         L_within = np.eye(n_samples) - W_within
-        L_tmp = np.eye(n_samples) - np.ones([n_samples, n_samples])/n_samples
+        L_tmp = np.eye(n_samples) - old_div(np.ones([n_samples, n_samples]),n_samples)
         L_between = L_within - L_tmp
 
     if style is 'laplacian':
@@ -61,20 +65,20 @@ def trace_ratio(X, y, n_selected_features, **kwargs):
         W_within = construct_W(X, **kwargs_within)
         D_within = np.diag(np.array(W_within.sum(1))[:, 0])
         L_within = D_within - W_within
-        W_between = np.dot(np.dot(D_within, np.ones([n_samples, n_samples])), D_within)/np.sum(D_within)
+        W_between = old_div(np.dot(np.dot(D_within, np.ones([n_samples, n_samples])), D_within),np.sum(D_within))
         D_between = np.diag(np.array(W_between.sum(1)))
         L_between = D_between - W_between
 
     # build X'*L_within*X and X'*L_between*X
-    L_within = (np.transpose(L_within) + L_within)/2
-    L_between = (np.transpose(L_between) + L_between)/2
+    L_within = old_div((np.transpose(L_within) + L_within),2)
+    L_between = old_div((np.transpose(L_between) + L_between),2)
     S_within = np.array(np.dot(np.dot(np.transpose(X), L_within), X))
     S_between = np.array(np.dot(np.dot(np.transpose(X), L_between), X))
 
     # reflect the within-class or local affinity relationship encoded on graph, Sw = X*Lw*X'
-    S_within = (np.transpose(S_within) + S_within)/2
+    S_within = old_div((np.transpose(S_within) + S_within),2)
     # reflect the between-class or global affinity relationship encoded on graph, Sb = X*Lb*X'
-    S_between = (np.transpose(S_between) + S_between)/2
+    S_between = old_div((np.transpose(S_between) + S_between),2)
 
     # take the absolute values of diagonal
     s_within = np.absolute(S_within.diagonal())
@@ -83,7 +87,7 @@ def trace_ratio(X, y, n_selected_features, **kwargs):
 
     # preprocessing
     fs_idx = np.argsort(np.divide(s_between, s_within), 0)[::-1]
-    k = np.sum(s_between[0:n_selected_features])/np.sum(s_within[0:n_selected_features])
+    k = old_div(np.sum(s_between[0:n_selected_features]),np.sum(s_within[0:n_selected_features]))
     s_within = s_within[fs_idx[0:n_selected_features]]
     s_between = s_between[fs_idx[0:n_selected_features]]
 
@@ -94,9 +98,9 @@ def trace_ratio(X, y, n_selected_features, **kwargs):
         I = np.argsort(s_between-k*s_within)[::-1]
         idx = I[0:n_selected_features]
         old_k = k
-        k = np.sum(s_between[idx])/np.sum(s_within[idx])
+        k = old_div(np.sum(s_between[idx]),np.sum(s_within[idx]))
         if verbose:
-            print 'obj at iter ' + str(count+1) + ': ' + str(k)
+            print('obj at iter ' + str(count+1) + ': ' + str(k))
         count += 1
         if abs(k - old_k) < 1e-3:
             break

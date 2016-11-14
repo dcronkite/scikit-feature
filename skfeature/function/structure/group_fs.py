@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import math
 import numpy as np
 from skfeature.utility.sparse_learning import tree_lasso_projection, tree_norm
@@ -76,7 +81,7 @@ def group_fs(X, y, z1, z2, idx, **kwargs):
     obj = np.zeros(max_iter)
     for iter_step in range(max_iter):
         # step1: compute search point s based on wp and w (with beta)
-        beta = (alphap-1)/alpha
+        beta = old_div((alphap-1),alpha)
         s = w + beta*wwp
 
         # step2: line search for gamma and compute the new approximation solution w
@@ -91,12 +96,12 @@ def group_fs(X, y, z1, z2, idx, **kwargs):
 
         while True:
             # let s walk in a step in the antigradient of s to get v and then do the L1/L2-norm regularized projection
-            v = s - G/gamma
+            v = s - old_div(G,gamma)
             # tree overlapping group lasso projection
             n_nodes = int(idx.shape[1])
             idx_tmp = np.zeros((3, n_nodes+1))
             idx_tmp[0:2, :] = np.concatenate((np.array([[-1], [-1]]), idx[0:2, :]), axis=1)
-            idx_tmp[2, :] = np.concatenate((np.array([z1/gamma]), z2/gamma*idx[2, :]), axis=1)
+            idx_tmp[2, :] = np.concatenate((np.array([old_div(z1,gamma)]), z2/gamma*idx[2, :]), axis=1)
             w = tree_lasso_projection(v, n_features, idx_tmp, n_nodes+1)
             # the difference between the new approximate solution w and the search point s
             v = w - s
@@ -114,12 +119,12 @@ def group_fs(X, y, z1, z2, idx, **kwargs):
             if l_sum <= r_sum*gamma:
                 break
             else:
-                gamma = max(2*gamma, l_sum/r_sum)
+                gamma = max(2*gamma, old_div(l_sum,r_sum))
         value_gamma[iter_step] = gamma
 
         # step3: update alpha and alphap, and check weather converge
         alphap = alpha
-        alpha = (1+math.sqrt(4*alpha*alpha+1))/2
+        alpha = old_div((1+math.sqrt(4*alpha*alpha+1)),2)
 
         wwp = w - wp
         Xwy = Xw -y
@@ -131,10 +136,10 @@ def group_fs(X, y, z1, z2, idx, **kwargs):
         tree_norm_val = tree_norm(w, n_features, idx_tmp, n_nodes+1)
 
         # function value = loss + regularization
-        obj[iter_step] = np.inner(Xwy, Xwy)/2 + tree_norm_val
+        obj[iter_step] = old_div(np.inner(Xwy, Xwy),2) + tree_norm_val
 
         if verbose:
-            print 'obj at iter ' + str(iter_step+1) + ': ' + str(obj[iter_step])
+            print('obj at iter ' + str(iter_step+1) + ': ' + str(obj[iter_step]))
 
         if flag is True:
             break

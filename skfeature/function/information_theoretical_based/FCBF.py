@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import numpy as np
 from skfeature.utility.mutual_information import su_calculation
 
@@ -27,7 +30,7 @@ def fcbf(X, y, **kwargs):
     """
 
     n_samples, n_features = X.shape
-    if 'delta' in kwargs.keys():
+    if 'delta' in list(kwargs.keys()):
         delta = kwargs['delta']
     else:
         # the default value of delta is 0
@@ -58,6 +61,6 @@ def fcbf(X, y, **kwargs):
                 idx = np.transpose(idx)
                 # delete the feature by using the mask
                 s_list = s_list[idx]
-                length = len(s_list)/2
+                length = old_div(len(s_list),2)
                 s_list = s_list.reshape((length, 2))
     return np.array(F, dtype=int)

@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.cross_validation import KFold
@@ -30,7 +33,7 @@ def decision_tree_backward(X, y, n_selected_features):
     clf = DecisionTreeClassifier()
 
     # selected feature set, initialized to contain all features
-    F = range(n_features)
+    F = list(range(n_features))
     count = n_features
 
     while count > n_selected_features:
@@ -45,7 +48,7 @@ def decision_tree_backward(X, y, n_selected_features):
                     y_predict = clf.predict(X_tmp[test])
                     acc_tmp = accuracy_score(y[test], y_predict)
                     acc += acc_tmp
-                acc = float(acc)/10
+                acc = old_div(float(acc),10)
                 F.append(i)
                 # record the feature which results in the largest accuracy
                 if acc > max_acc:

@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import math
 import numpy as np
 from numpy import linalg as LA
@@ -79,7 +84,7 @@ def proximal_gradient_descent(X, Y, z, **kwargs):
     obj = np.zeros(max_iter)
     for iter_step in range(max_iter):
         # step1: compute search point S based on Wp and W (with beta)
-        beta = (alphap-1)/alpha
+        beta = old_div((alphap-1),alpha)
         S = W + beta*WWp
 
         # step2: line search for gamma and compute the new approximation solution W
@@ -94,7 +99,7 @@ def proximal_gradient_descent(X, Y, z, **kwargs):
 
         while True:
             # let S walk in a step in the antigradient of S to get V and then do the L1/L2-norm regularized projection
-            V = S - G/gamma
+            V = S - old_div(G,gamma)
             W = euclidean_projection(V, n_features, n_classes, z, gamma)
             # the difference between the new approximate solution W and the search point S
             V = W - S
@@ -113,22 +118,22 @@ def proximal_gradient_descent(X, Y, z, **kwargs):
             if l_sum < r_sum*gamma:
                 break
             else:
-                gamma = max(2*gamma, l_sum/r_sum)
+                gamma = max(2*gamma, old_div(l_sum,r_sum))
         value_gamma[iter_step] = gamma
 
         # step3: update alpha and alphap, and check weather converge
         alphap = alpha
-        alpha = (1+math.sqrt(4*alpha*alpha+1))/2
+        alpha = old_div((1+math.sqrt(4*alpha*alpha+1)),2)
 
         WWp = W - Wp
         XWY = XW -Y
 
         # calculate obj
-        obj[iter_step] = LA.norm(XWY, 'fro')**2/2
+        obj[iter_step] = old_div(LA.norm(XWY, 'fro')**2,2)
         obj[iter_step] += z*calculate_l21_norm(W)
 
         if verbose:
-            print 'obj at iter ' + str(iter_step+1) + ': ' + str(obj[iter_step])
+            print('obj at iter ' + str(iter_step+1) + ': ' + str(obj[iter_step]))
 
         if flag is True:
             break
@@ -146,5 +151,5 @@ def init_factor(W_norm, XW, Y, z):
     n_samples, n_classes = XW.shape
     a = np.inner(np.reshape(XW, n_samples*n_classes), np.reshape(Y, n_samples*n_classes)) - z*W_norm
     b = LA.norm(XW, 'fro')**2
-    ratio = a / b
+    ratio = old_div(a, b)
     return ratio

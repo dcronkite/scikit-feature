@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import numpy as np
 import sys
 import math
@@ -60,7 +65,7 @@ def ndfs(X, **kwargs):
         beta = kwargs['beta']
     if 'F0' not in kwargs:
         if 'n_clusters' not in kwargs:
-            print >>sys.stderr, "either F0 or n_clusters should be provided"
+            print("either F0 or n_clusters should be provided", file=sys.stderr)
         else:
             # initialize F
             n_clusters = kwargs['n_clusters']
@@ -90,22 +95,22 @@ def ndfs(X, **kwargs):
         # update D
         temp = np.sqrt((W*W).sum(1))
         temp[temp < 1e-16] = 1e-16
-        temp = 0.5 / temp
+        temp = old_div(0.5, temp)
         D = np.diag(temp)
         # update M
         M = L + alpha * (I - np.dot(np.dot(X, T), X.transpose()))
-        M = (M + M.transpose())/2
+        M = old_div((M + M.transpose()),2)
         # update F
         denominator = np.dot(M, F) + gamma*np.dot(np.dot(F, F.transpose()), F)
         temp = np.divide(gamma*F, denominator)
         F = F*np.array(temp)
-        temp = np.diag(np.sqrt(np.diag(1 / (np.dot(F.transpose(), F) + 1e-16))))
+        temp = np.diag(np.sqrt(np.diag(old_div(1, (np.dot(F.transpose(), F) + 1e-16)))))
         F = np.dot(F, temp)
 
         # calculate objective function
         obj[iter_step] = np.trace(np.dot(np.dot(F.transpose(), M), F)) + gamma/4*np.linalg.norm(np.dot(F.transpose(), F)-np.identity(n_clusters), 'fro')
         if verbose:
-            print 'obj at iter ' + str(iter_step+1) + ': ' + str(obj[iter_step])
+            print('obj at iter ' + str(iter_step+1) + ': ' + str(obj[iter_step]))
 
         if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step-1]) < 1e-3:
             break

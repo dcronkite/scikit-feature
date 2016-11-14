@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import str
+from builtins import range
 import numpy as np
 import scipy
 import math
@@ -70,7 +73,7 @@ def udfs(X, **kwargs):
 
         obj[iter_step] = calculate_obj(X, W, M, gamma)
         if verbose:
-            print 'obj at iter ' + str(iter_step+1) + ': ' + str(obj[iter_step])
+            print('obj at iter ' + str(iter_step+1) + ': ' + str(obj[iter_step]))
 
         if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step-1]) < 1e-3:
             break

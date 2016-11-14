@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import numpy as np
 from sklearn import linear_model
 
@@ -49,7 +52,7 @@ def alpha_investing(X, y, w0, dw):
         error_new = 1 - logreg_new.score(X_new, y)
 
         # calculate p-value
-        pval = np.exp((error_new - error_old)/(2*error_old/n_samples))
+        pval = np.exp(old_div((error_new - error_old),(2*error_old/n_samples)))
         if pval < alpha:
             F.append(i)
             w = w + dw - alpha

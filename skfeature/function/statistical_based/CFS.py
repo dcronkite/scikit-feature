@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import numpy as np
 from skfeature.utility.mutual_information import su_calculation
 
@@ -33,7 +36,7 @@ def merit_calculation(X, y):
                 fj = X[:, j]
                 rff += su_calculation(fi, fj)
     rff *= 2
-    merits = rcf / np.sqrt(n_features + rff)
+    merits = old_div(rcf, np.sqrt(n_features + rff))
     return merits
 
 

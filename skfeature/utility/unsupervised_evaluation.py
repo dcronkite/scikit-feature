@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import range
 import numpy as np
 import sklearn.utils.linear_assignment_ as la
 from sklearn.metrics import accuracy_score
@@ -10,7 +12,7 @@ def best_map(l1, l2):
     Permute labels of l2 to match l1 as much as possible
     """
     if len(l1) != len(l2):
-        print "L1.shape must == L2.shape"
+        print("L1.shape must == L2.shape")
         exit(0)
 
     label1 = np.unique(l1)

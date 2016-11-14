@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.cross_validation import KFold
@@ -44,7 +47,7 @@ def decision_tree_forward(X, y, n_selected_features):
                     y_predict = clf.predict(X_tmp[test])
                     acc_tmp = accuracy_score(y[test], y_predict)
                     acc += acc_tmp
-                acc = float(acc)/10
+                acc = old_div(float(acc),10)
                 F.pop()
                 # record the feature which results in the largest accuracy
                 if acc > max_acc:

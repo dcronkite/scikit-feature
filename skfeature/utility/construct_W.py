@@ -1,3 +1,7 @@
+from __future__ import division
+from __future__ import print_function
+from builtins import range
+from past.utils import old_div
 import numpy as np
 from scipy.sparse import *
 from sklearn.metrics.pairwise import pairwise_distances
@@ -57,36 +61,36 @@ def construct_W(X, **kwargs):
     """
 
     # default metric is 'cosine'
-    if 'metric' not in kwargs.keys():
+    if 'metric' not in list(kwargs.keys()):
         kwargs['metric'] = 'cosine'
 
     # default neighbor mode is 'knn' and default neighbor size is 5
-    if 'neighbor_mode' not in kwargs.keys():
+    if 'neighbor_mode' not in list(kwargs.keys()):
         kwargs['neighbor_mode'] = 'knn'
-    if kwargs['neighbor_mode'] == 'knn' and 'k' not in kwargs.keys():
+    if kwargs['neighbor_mode'] == 'knn' and 'k' not in list(kwargs.keys()):
         kwargs['k'] = 5
-    if kwargs['neighbor_mode'] == 'supervised' and 'k' not in kwargs.keys():
+    if kwargs['neighbor_mode'] == 'supervised' and 'k' not in list(kwargs.keys()):
         kwargs['k'] = 5
-    if kwargs['neighbor_mode'] == 'supervised' and 'y' not in kwargs.keys():
+    if kwargs['neighbor_mode'] == 'supervised' and 'y' not in list(kwargs.keys()):
         print ('Warning: label is required in the supervised neighborMode!!!')
         exit(0)
 
     # default weight mode is 'binary', default t in heat kernel mode is 1
-    if 'weight_mode' not in kwargs.keys():
+    if 'weight_mode' not in list(kwargs.keys()):
         kwargs['weight_mode'] = 'binary'
     if kwargs['weight_mode'] == 'heat_kernel':
         if kwargs['metric'] != 'euclidean':
             kwargs['metric'] = 'euclidean'
-        if 't' not in kwargs.keys():
+        if 't' not in list(kwargs.keys()):
             kwargs['t'] = 1
     elif kwargs['weight_mode'] == 'cosine':
         if kwargs['metric'] != 'cosine':
             kwargs['metric'] = 'cosine'
 
     # default fisher_score and reliefF mode are 'false'
-    if 'fisher_score' not in kwargs.keys():
+    if 'fisher_score' not in list(kwargs.keys()):
         kwargs['fisher_score'] = False
-    if 'reliefF' not in kwargs.keys():
+    if 'reliefF' not in list(kwargs.keys()):
         kwargs['reliefF'] = False
 
     n_samples, n_features = np.shape(X)
@@ -118,7 +122,7 @@ def construct_W(X, **kwargs):
                 # normalize the data first
                 X_normalized = np.power(np.sum(X*X, axis=1), 0.5)
                 for i in range(n_samples):
-                    X[i, :] = X[i, :]/max(1e-12, X_normalized[i])
+                    X[i, :] = old_div(X[i, :],max(1e-12, X_normalized[i]))
                 # compute pairwise cosine distances
                 D_cosine = np.dot(X, np.transpose(X))
                 # sort the distance matrix D in descending order
@@ -146,7 +150,7 @@ def construct_W(X, **kwargs):
             idx_new = idx[:, 0:k+1]
             dump_new = dump[:, 0:k+1]
             # compute the pairwise heat kernel distances
-            dump_heat_kernel = np.exp(-dump_new/(2*t*t))
+            dump_heat_kernel = np.exp(old_div(-dump_new,(2*t*t)))
             G = np.zeros((n_samples*(k+1), 3))
             G[:, 0] = np.tile(np.arange(n_samples), (k+1, 1)).reshape(-1)
             G[:, 1] = np.ravel(idx_new, order='F')
@@ -161,7 +165,7 @@ def construct_W(X, **kwargs):
             # normalize the data first
             X_normalized = np.power(np.sum(X*X, axis=1), 0.5)
             for i in range(n_samples):
-                    X[i, :] = X[i, :]/max(1e-12, X_normalized[i])
+                    X[i, :] = old_div(X[i, :],max(1e-12, X_normalized[i]))
             # compute pairwise cosine distances
             D_cosine = np.dot(X, np.transpose(X))
             # sort the distance matrix D in ascending order
@@ -192,7 +196,7 @@ def construct_W(X, **kwargs):
             for i in range(n_classes):
                 class_idx = (y == label[i])
                 class_idx_all = (class_idx[:, np.newaxis] & class_idx[np.newaxis, :])
-                W[class_idx_all] = 1.0/np.sum(np.sum(class_idx))
+                W[class_idx_all] = old_div(1.0,np.sum(np.sum(class_idx)))
             return W
 
         # construct the weight matrix W in a reliefF way, NH(x) and NM(x,y) denotes a set of k nearest
@@ -213,7 +217,7 @@ def construct_W(X, **kwargs):
                     k = len(class_idx) - 1
                 G[id_now:n_smp_class+id_now, 0] = np.tile(class_idx, (k+1, 1)).reshape(-1)
                 G[id_now:n_smp_class+id_now, 1] = np.ravel(class_idx[idx_new[:]], order='F')
-                G[id_now:n_smp_class+id_now, 2] = 1.0/k
+                G[id_now:n_smp_class+id_now, 2] = old_div(1.0,k)
                 id_now += n_smp_class
             W1 = csc_matrix((G[:, 2], (G[:, 0], G[:, 1])), shape=(n_samples, n_samples))
             # when i = j, W_ij = 1
@@ -235,7 +239,7 @@ def construct_W(X, **kwargs):
                         n_smp_class = len(class_idx1)*k
                         G[id_now:n_smp_class+id_now, 0] = np.tile(class_idx1, (k, 1)).reshape(-1)
                         G[id_now:n_smp_class+id_now, 1] = np.ravel(class_idx2[idx_new[:]], order='F')
-                        G[id_now:n_smp_class+id_now, 2] = -1.0/((n_classes-1)*k)
+                        G[id_now:n_smp_class+id_now, 2] = old_div(-1.0,((n_classes-1)*k))
                         id_now += n_smp_class
             W2 = csc_matrix((G[:, 2], (G[:, 0], G[:, 1])), shape=(n_samples, n_samples))
             bigger = np.transpose(W2) > W2
@@ -270,7 +274,7 @@ def construct_W(X, **kwargs):
                 # normalize the data first
                 X_normalized = np.power(np.sum(X*X, axis=1), 0.5)
                 for i in range(n_samples):
-                    X[i, :] = X[i, :]/max(1e-12, X_normalized[i])
+                    X[i, :] = old_div(X[i, :],max(1e-12, X_normalized[i]))
                 G = np.zeros((n_samples*(k+1), 3))
                 id_now = 0
                 for i in range(n_classes):
@@ -306,7 +310,7 @@ def construct_W(X, **kwargs):
                 dump_new = dump[:, 0:k+1]
                 t = kwargs['t']
                 # compute pairwise heat kernel distances for instances in class i
-                dump_heat_kernel = np.exp(-dump_new/(2*t*t))
+                dump_heat_kernel = np.exp(old_div(-dump_new,(2*t*t)))
                 n_smp_class = len(class_idx)*(k+1)
                 G[id_now:n_smp_class+id_now, 0] = np.tile(class_idx, (k+1, 1)).reshape(-1)
                 G[id_now:n_smp_class+id_now, 1] = np.ravel(class_idx[idx_new[:]], order='F')
@@ -322,7 +326,7 @@ def construct_W(X, **kwargs):
             # normalize the data first
             X_normalized = np.power(np.sum(X*X, axis=1), 0.5)
             for i in range(n_samples):
-                X[i, :] = X[i, :]/max(1e-12, X_normalized[i])
+                X[i, :] = old_div(X[i, :],max(1e-12, X_normalized[i]))
             G = np.zeros((n_samples*(k+1), 3))
             id_now = 0
             for i in range(n_classes):
