@@ -5,7 +5,7 @@ from scipy.sparse import *
 from skfeature.utility.construct_W import construct_W
 
 
-def lap_score(X, **kwargs):
+def lap_score(X, W=None, **kwargs):
     """
     This function implements the laplacian score feature selection, steps are as follows:
     1. Construct the affinity matrix W if it is not specified
@@ -32,10 +32,8 @@ def lap_score(X, **kwargs):
     """
 
     # if 'W' is not specified, use the default W
-    if 'W' not in list(kwargs.keys()):
+    if not W:
         W = construct_W(X)
-    # construct the affinity matrix W
-    W = kwargs['W']
     # build the diagonal D matrix from affinity matrix W
     D = np.array(W.sum(axis=1))
     L = W
@@ -45,14 +43,14 @@ def lap_score(X, **kwargs):
     t1 = np.transpose(np.dot(Xt, D.todense()))
     t2 = np.transpose(np.dot(Xt, L.todense()))
     # compute the numerator of Lr
-    D_prime = np.sum(np.multiply(t1, X), 0) - old_div(np.multiply(tmp, tmp),D.sum())
+    D_prime = np.sum(np.multiply(t1, X), 0) - old_div(np.multiply(tmp, tmp), D.sum())
     # compute the denominator of Lr
-    L_prime = np.sum(np.multiply(t2, X), 0) - old_div(np.multiply(tmp, tmp),D.sum())
+    L_prime = np.sum(np.multiply(t2, X), 0) - old_div(np.multiply(tmp, tmp), D.sum())
     # avoid the denominator of Lr to be 0
     D_prime[D_prime < 1e-12] = 10000
 
     # compute laplacian score for all features
-    score = 1 - np.array(np.multiply(L_prime, old_div(1,D_prime)))[0, :]
+    score = 1 - np.array(np.multiply(L_prime, old_div(1, D_prime)))[0, :]
     return np.transpose(score)
 
 

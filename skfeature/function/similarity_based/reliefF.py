@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
 
 
-def reliefF(X, y, **kwargs):
+def reliefF(X, y, k=5, **kwargs):
     """
     This function implements the reliefF feature selection
 
@@ -31,10 +31,6 @@ def reliefF(X, y, **kwargs):
     Zhao, Zheng et al. "On Similarity Preserving Feature Selection." TKDE 2013.
     """
 
-    if "k" not in list(kwargs.keys()):
-        k = 5
-    else:
-        k = kwargs["k"]
     n_samples, n_features = X.shape
 
     # calculate pairwise distances between instances
