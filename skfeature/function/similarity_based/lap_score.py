@@ -2,7 +2,7 @@ from __future__ import division
 from past.utils import old_div
 import numpy as np
 from scipy.sparse import diags
-from skfeature.utility.construct_W import construct_w
+from skfeature.utility.construct_w import construct_w
 
 
 def lap_score(X, W=None, **kwargs):

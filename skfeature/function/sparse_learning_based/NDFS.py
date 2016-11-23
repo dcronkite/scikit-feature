@@ -7,7 +7,7 @@ import numpy as np
 import sys
 import math
 import sklearn.cluster
-from skfeature.utility.construct_W import construct_w
+from skfeature.utility.construct_w import construct_w
 
 
 def ndfs(X, W=None, alpha=1, beta=1, gamma=10e8, F0=None, n_clusters=None, verbose=False, **kwargs):

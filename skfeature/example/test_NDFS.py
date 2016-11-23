@@ -4,7 +4,7 @@ from builtins import range
 from past.utils import old_div
 import scipy.io
 from skfeature.function.sparse_learning_based import NDFS
-from skfeature.utility import construct_W
+from skfeature.utility import construct_w
 from skfeature.utility.sparse_learning import feature_ranking
 from skfeature.utility import unsupervised_evaluation
 
@@ -19,7 +19,7 @@ def main():
 
     # construct affinity matrix
     kwargs = {"metric": "euclidean", "neighborMode": "knn", "weightMode": "heatKernel", "k": 5, 't': 1}
-    W = construct_W.construct_w(X, **kwargs)
+    W = construct_w.construct_w(X, **kwargs)
 
     # obtain the feature weight matrix
     Weight = NDFS.ndfs(X, W=W, n_clusters=20)

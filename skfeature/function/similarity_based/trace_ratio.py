@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from past.utils import old_div
 import numpy as np
-from skfeature.utility.construct_W import construct_w
+from skfeature.utility.construct_w import construct_w
 
 
 def trace_ratio(X, y, n_selected_features, style='fisher', verbose=False, **kwargs):

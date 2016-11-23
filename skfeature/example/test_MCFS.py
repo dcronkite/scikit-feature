@@ -4,7 +4,7 @@ from builtins import range
 from past.utils import old_div
 import scipy.io
 from skfeature.function.sparse_learning_based import MCFS
-from skfeature.utility import construct_W
+from skfeature.utility import construct_w
 from skfeature.utility import unsupervised_evaluation
 
 
@@ -18,7 +18,7 @@ def main():
 
     # construct affinity matrix
     kwargs = {"metric": "euclidean", "neighborMode": "knn", "weightMode": "heatKernel", "k": 5, 't': 1}
-    W = construct_W.construct_w(X, **kwargs)
+    W = construct_w.construct_w(X, **kwargs)
 
     num_fea = 100    # specify the number of selected features
     num_cluster = 20    # specify the number of clusters, it is usually set as the number of classes in the ground truth

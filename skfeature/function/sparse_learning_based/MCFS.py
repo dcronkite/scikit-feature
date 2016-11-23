@@ -4,7 +4,7 @@ from past.utils import old_div
 import scipy
 import numpy as np
 from sklearn import linear_model
-from skfeature.utility.construct_W import construct_w
+from skfeature.utility.construct_w import construct_w
 
 
 def mcfs(X, n_selected_features, W=None, n_clusters=5, **kwargs):
