@@ -10,7 +10,7 @@ import sklearn.cluster
 from skfeature.utility.construct_W import construct_W
 
 
-def ndfs(X, **kwargs):
+def ndfs(X, W=None, alpha=1, beta=1, gamma=10e8, F0=None, n_clusters=None, verbose=False, **kwargs):
     """
     This function implement unsupervised feature selection using nonnegative spectral analysis, i.e.,
     min_{F,W} Tr(F^T L F) + alpha*(||XW-F||_F^2 + beta*||W||_{2,1}) + gamma/2 * ||F^T F - I||_F^2
@@ -45,38 +45,17 @@ def ndfs(X, **kwargs):
         Li, Zechao, et al. "Unsupervised Feature Selection Using Nonnegative Spectral Analysis." AAAI. 2012.
     """
 
-    # default gamma is 10e8
-    if 'gamma' not in kwargs:
-        gamma = 10e8
-    else:
-        gamma = kwargs['gamma']
     # use the default affinity matrix
-    if 'W' not in kwargs:
+    if not W:
         W = construct_W(X)
-    else:
-        W = kwargs['W']
-    if 'alpha' not in kwargs:
-        alpha = 1
-    else:
-        alpha = kwargs['alpha']
-    if 'beta' not in kwargs:
-        beta = 1
-    else:
-        beta = kwargs['beta']
-    if 'F0' not in kwargs:
-        if 'n_clusters' not in kwargs:
-            print("either F0 or n_clusters should be provided", file=sys.stderr)
-        else:
+
+    if not F0:
+        if n_clusters:
             # initialize F
-            n_clusters = kwargs['n_clusters']
-            F = kmeans_initialization(X, n_clusters)
-    else:
-        F = kwargs['F0']
-    if 'verbose' not in kwargs:
-        verbose = False
-    else:
-        verbose = kwargs['verbose']
-    
+            F0 = kmeans_initialization(X, n_clusters)
+        else:
+            raise ValueError('Either F0 or n_clusters should be provided.')
+
     n_samples, n_features = X.shape
 
     # initialize D as identity matrix
@@ -91,7 +70,7 @@ def ndfs(X, **kwargs):
     for iter_step in range(max_iter):
         # update W
         T = np.linalg.inv(np.dot(X.transpose(), X) + beta * D + 1e-6*np.eye(n_features))
-        W = np.dot(np.dot(T, X.transpose()), F)
+        W = np.dot(np.dot(T, X.transpose()), F0)
         # update D
         temp = np.sqrt((W*W).sum(1))
         temp[temp < 1e-16] = 1e-16
@@ -101,14 +80,14 @@ def ndfs(X, **kwargs):
         M = L + alpha * (I - np.dot(np.dot(X, T), X.transpose()))
         M = old_div((M + M.transpose()),2)
         # update F
-        denominator = np.dot(M, F) + gamma*np.dot(np.dot(F, F.transpose()), F)
-        temp = np.divide(gamma*F, denominator)
-        F = F*np.array(temp)
-        temp = np.diag(np.sqrt(np.diag(old_div(1, (np.dot(F.transpose(), F) + 1e-16)))))
-        F = np.dot(F, temp)
+        denominator = np.dot(M, F0) + gamma*np.dot(np.dot(F0, F0.transpose()), F0)
+        temp = np.divide(gamma*F0, denominator)
+        F0 = F0*np.array(temp)
+        temp = np.diag(np.sqrt(np.diag(old_div(1, (np.dot(F0.transpose(), F0) + 1e-16)))))
+        F0 = np.dot(F0, temp)
 
         # calculate objective function
-        obj[iter_step] = np.trace(np.dot(np.dot(F.transpose(), M), F)) + gamma/4*np.linalg.norm(np.dot(F.transpose(), F)-np.identity(n_clusters), 'fro')
+        obj[iter_step] = np.trace(np.dot(np.dot(F0.transpose(), M), F0)) + gamma/4*np.linalg.norm(np.dot(F0.transpose(), F0)-np.identity(n_clusters), 'fro')
         if verbose:
             print('obj at iter ' + str(iter_step+1) + ': ' + str(obj[iter_step]))
 

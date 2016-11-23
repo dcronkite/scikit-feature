@@ -9,7 +9,7 @@ from numpy import linalg as LA
 from skfeature.utility.sparse_learning import euclidean_projection, calculate_l21_norm
 
 
-def proximal_gradient_descent(X, Y, z, **kwargs):
+def proximal_gradient_descent(X, Y, z, verbose=False, **kwargs):
     """
     This function implements supervised sparse feature selection via l2,1 norm, i.e.,
     min_{W} ||XW-Y||_F^2 + z*||W||_{2,1}
@@ -39,11 +39,6 @@ def proximal_gradient_descent(X, Y, z, **kwargs):
     ---------
         Liu, Jun, et al. "Multi-Task Feature Learning Via Efficient l2,1-Norm Minimization." UAI. 2009.
     """
-
-    if 'verbose' not in kwargs:
-        verbose = False
-    else:
-        verbose = kwargs['verbose']
 
     # starting point initialization
     n_samples, n_features = X.shape

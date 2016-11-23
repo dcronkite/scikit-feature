@@ -30,5 +30,5 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3'
     ],
-    requires=['scikit-learn', 'scipy', 'future']
+    requires=['scikit-learn', 'scipy', 'future', 'numpy']
 )

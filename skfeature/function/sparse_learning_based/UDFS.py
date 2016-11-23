@@ -8,7 +8,7 @@ from skfeature.utility.sparse_learning import generate_diagonal_matrix, calculat
 from sklearn.metrics.pairwise import pairwise_distances
 
 
-def udfs(X, **kwargs):
+def udfs(X, gamma=0.1, k=5, n_clusters=5, verbose=False, **kwargs):
     """
     This function implements l2,1-norm regularized discriminative feature
     selection for unsupervised learning, i.e., min_W Tr(W^T M W) + gamma ||W||_{2,1}, s.t. W^T W = I
@@ -35,25 +35,6 @@ def udfs(X, **kwargs):
     Reference
     Yang, Yi et al. "l2,1-Norm Regularized Discriminative Feature Selection for Unsupervised Learning." AAAI 2012.
     """
-
-    # default gamma is 0.1
-    if 'gamma' not in kwargs:
-        gamma = 0.1
-    else:
-        gamma = kwargs['gamma']
-    # default k is set to be 5
-    if 'k' not in kwargs:
-        k = 5
-    else:
-        k = kwargs['k']
-    if 'n_clusters' not in kwargs:
-        n_clusters = 5
-    else:
-        n_clusters = kwargs['n_clusters']
-    if 'verbose' not in kwargs:
-        verbose = False
-    else:
-        verbose = kwargs['verbose']
 
     # construct M
     n_sample, n_feature = X.shape

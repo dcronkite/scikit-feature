@@ -1,7 +1,6 @@
 from __future__ import division
 from __future__ import print_function
-from builtins import str
-from builtins import range
+from builtins import str, range
 from past.utils import old_div
 import math
 import numpy as np
@@ -9,7 +8,7 @@ from numpy import linalg as LA
 from skfeature.utility.sparse_learning import euclidean_projection, calculate_l21_norm
 
 
-def proximal_gradient_descent(X, Y, z, **kwargs):
+def proximal_gradient_descent(X, Y, z, verbose=False, **kwargs):
     """
     This function implements supervised sparse feature selection via l2,1 norm, i.e.,
     min_{W} sum_{i}log(1+exp(-yi*(W'*x+C))) + z*||W||_{2,1}
@@ -39,12 +38,6 @@ def proximal_gradient_descent(X, Y, z, **kwargs):
     Reference:
         Liu, Jun, et al. "Multi-Task Feature Learning Via Efficient l2,1-Norm Minimization." UAI. 2009.
     """
-
-    if 'verbose' not in kwargs:
-        verbose = False
-    else:
-        verbose = kwargs['verbose']
-
     # Starting point initialization #
     n_samples, n_features = X.shape
     n_samples, n_classes = Y.shape
@@ -67,11 +60,11 @@ def proximal_gradient_descent(X, Y, z, **kwargs):
 
     # starting the main program, the Armijo Goldstein line search scheme + accelerated gradient descent
     # the intial guess of the Lipschitz continuous gradient
-    gamma = old_div(1.0,(n_samples*n_classes))
+    gamma = old_div(1.0, (n_samples * n_classes))
 
     # assign Wp with W, and XWp with XW
     XWp = XW
-    WWp =np.zeros((n_features, n_classes))
+    WWp = np.zeros((n_features, n_classes))
     CCp = np.zeros((1, n_classes))
 
     alphap = 0
@@ -85,20 +78,20 @@ def proximal_gradient_descent(X, Y, z, **kwargs):
     obj = np.zeros(max_iter)
     for iter_step in range(max_iter):
         # step1: compute search point S based on Wp and W (with beta)
-        beta = old_div((alphap-1),alpha)
-        S = W + beta*WWp
-        SC = C + beta*CCp
+        beta = old_div((alphap - 1), alpha)
+        S = W + beta * WWp
+        SC = C + beta * CCp
 
         # step2: line search for gamma and compute the new approximation solution W
-        XS = XW + beta*(XW - XWp)
-        aa = -np.multiply(Y, XS+np.tile(SC, (n_samples, 1)))
+        XS = XW + beta * (XW - XWp)
+        aa = -np.multiply(Y, XS + np.tile(SC, (n_samples, 1)))
         # fun_S is the logistic loss at the search point
         bb = np.maximum(aa, 0)
-        fun_S = old_div(np.sum(np.log(np.exp(-bb)+np.exp(aa-bb))+bb),(n_samples*n_classes))
+        fun_S = old_div(np.sum(np.log(np.exp(-bb) + np.exp(aa - bb)) + bb), (n_samples * n_classes))
         # compute prob = [p_1;p_2;...;p_m]
-        prob = old_div(1.0,(1+np.exp(aa)))
+        prob = old_div(1.0, (1 + np.exp(aa)))
 
-        b = old_div(np.multiply(-Y, (1-prob)),(n_samples*n_classes))
+        b = old_div(np.multiply(-Y, (1 - prob)), (n_samples * n_classes))
         # compute the gradient of C
         GC = np.sum(b, 0)
         # compute the gradient of W as X'*b
@@ -111,21 +104,21 @@ def proximal_gradient_descent(X, Y, z, **kwargs):
 
         while True:
             # let S walk in a step in the antigradient of S to get V and then do the L1/L2-norm regularized projection
-            V = S - old_div(G,gamma)
-            C = SC - old_div(GC,gamma)
+            V = S - old_div(G, gamma)
+            C = SC - old_div(GC, gamma)
             W = euclidean_projection(V, n_features, n_classes, z, gamma)
 
             # the difference between the new approximate solution W and the search point S
             V = W - S
             # compute XW = X*W
             XW = np.dot(X, W)
-            aa = -np.multiply(Y, XW+np.tile(C, (n_samples, 1)))
+            aa = -np.multiply(Y, XW + np.tile(C, (n_samples, 1)))
             # fun_W is the logistic loss at the new approximate solution
             bb = np.maximum(aa, 0)
-            fun_W = old_div(np.sum(np.log(np.exp(-bb)+np.exp(aa-bb))+bb),(n_samples*n_classes))
+            fun_W = old_div(np.sum(np.log(np.exp(-bb) + np.exp(aa - bb)) + bb), (n_samples * n_classes))
 
-            r_sum = old_div((LA.norm(V, 'fro')**2 + LA.norm(C-SC, 2)**2), 2)
-            l_sum = fun_W - fun_S - np.sum(np.multiply(V, G)) - np.inner((C-SC), GC)
+            r_sum = old_div((LA.norm(V, 'fro') ** 2 + LA.norm(C - SC, 2) ** 2), 2)
+            l_sum = fun_W - fun_S - np.sum(np.multiply(V, G)) - np.inner((C - SC), GC)
 
             # determine weather the gradient step makes little improvement
             if r_sum <= 1e-20:
@@ -133,30 +126,30 @@ def proximal_gradient_descent(X, Y, z, **kwargs):
                 break
 
             # the condition is fun_W <= fun_S + <V, G> + <C ,GC> + gamma/2 * (<V,V> + <C-SC,C-SC> )
-            if l_sum < r_sum*gamma:
+            if l_sum < r_sum * gamma:
                 break
             else:
-                gamma = max(2*gamma, old_div(l_sum,r_sum))
+                gamma = max(2 * gamma, old_div(l_sum, r_sum))
         value_gamma[iter_step] = gamma
 
         # step3: update alpha and alphap, and check weather converge
         alphap = alpha
-        alpha = old_div((1+math.sqrt(4*alpha*alpha+1)),2)
+        alpha = old_div((1 + math.sqrt(4 * alpha * alpha + 1)), 2)
 
         WWp = W - Wp
         CCp = C - Cp
 
         # calculate obj
         obj[iter_step] = fun_W
-        obj[iter_step] += z*calculate_l21_norm(W)
+        obj[iter_step] += z * calculate_l21_norm(W)
 
         if verbose:
-            print('obj at iter ' + str(iter_step+1) + ': ' + str(obj[iter_step]))
+            print('obj at iter ' + str(iter_step + 1) + ': ' + str(obj[iter_step]))
 
         if flag is True:
             break
 
         # determine weather converge
-        if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step-1]) < 1e-3:
+        if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step - 1]) < 1e-3:
             break
     return W, obj, value_gamma

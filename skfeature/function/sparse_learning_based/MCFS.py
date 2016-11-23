@@ -7,7 +7,7 @@ from sklearn import linear_model
 from skfeature.utility.construct_W import construct_W
 
 
-def mcfs(X, n_selected_features, **kwargs):
+def mcfs(X, n_selected_features, W=None, n_clusters=5, **kwargs):
     """
     This function implements unsupervised feature selection for multi-cluster data.
 
@@ -34,15 +34,8 @@ def mcfs(X, n_selected_features, **kwargs):
     """
 
     # use the default affinity matrix
-    if 'W' not in kwargs:
+    if not W:
         W = construct_W(X)
-    else:
-        W = kwargs['W']
-    # default number of clusters is 5
-    if 'n_clusters' not in kwargs:
-        n_clusters = 5
-    else:
-        n_clusters = kwargs['n_clusters']
 
     # solve the generalized eigen-decomposition problem and get the top K
     # eigen-vectors with respect to the smallest eigenvalues

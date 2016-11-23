@@ -8,7 +8,7 @@ from skfeature.utility.sparse_learning import generate_diagonal_matrix
 from skfeature.utility.sparse_learning import calculate_l21_norm
 
 
-def rfs(X, Y, **kwargs):
+def rfs(X, Y, gamma=1, verbose=False, **kwargs):
     """
     This function implementS efficient and robust feature selection via joint l21-norms minimization
     min_W||X^T W - Y||_2,1 + gamma||W||_2,1
@@ -34,16 +34,6 @@ def rfs(X, Y, **kwargs):
     ---------
     Nie, Feiping et al. "Efficient and Robust Feature Selection via Joint l2,1-Norms Minimization" NIPS 2010.
     """
-
-    # default gamma is 1
-    if 'gamma' not in kwargs:
-        gamma = 1
-    else:
-        gamma = kwargs['gamma']
-    if 'verbose' not in kwargs:
-        verbose = False
-    else:
-        verbose = kwargs['verbose']
 
     n_samples, n_features = X.shape
     A = np.zeros((n_samples, n_samples + n_features))
