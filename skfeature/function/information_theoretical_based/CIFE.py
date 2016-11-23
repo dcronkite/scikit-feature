@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from . import LCSI
 
 
-def cife(X, y, **kwargs):
+def cife(X, y, n_selected_features=None, **kwargs):
     """
     This function implements the CIFE feature selection
 
@@ -25,10 +25,4 @@ def cife(X, y, **kwargs):
     ---------
     Brown, Gavin et al. "Conditional Likelihood Maximisation: A Unifying Framework for Information Theoretic Feature Selection." JMLR 2012.
     """
-    
-    if 'n_selected_features' in list(kwargs.keys()):
-        n_selected_features = kwargs['n_selected_features']
-        F = LCSI.lcsi(X, y, beta=1, gamma=1, n_selected_features=n_selected_features)
-    else:
-        F = LCSI.lcsi(X, y, beta=1, gamma=1)
-    return F
+    return LCSI.lcsi(X, y, beta=1, gamma=1, n_selected_features=n_selected_features)

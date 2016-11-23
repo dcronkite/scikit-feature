@@ -1,8 +1,8 @@
-from builtins import range
 from skfeature.utility.entropy_estimators import *
+from builtins import range
 
 
-def cmim(X, y, **kwargs):
+def cmim(X, y, n_selected_features=None, **kwargs):
     """
     This function implements the CMIM feature selection.
     The scoring criteria is calculated based on the formula j_cmim=I(f;y)-max_j(I(fj;f)-I(fj;f|y))
@@ -30,12 +30,6 @@ def cmim(X, y, **kwargs):
     n_samples, n_features = X.shape
     # index of selected features, initialized to be empty
     F = []
-    # indicate whether the user specifies the number of features
-    is_n_selected_features_specified = False
-
-    if 'n_selected_features' in list(kwargs.keys()):
-        n_selected_features = kwargs['n_selected_features']
-        is_n_selected_features_specified = True
 
     # t1 stores I(f;y) for each feature f
     t1 = np.zeros(n_features)
@@ -57,12 +51,10 @@ def cmim(X, y, **kwargs):
             F.append(idx)
             f_select = X[:, idx]
 
-        if is_n_selected_features_specified is True:
-            if len(F) == n_selected_features:
-                break
-        if is_n_selected_features_specified is not True:
-            if j_cmim <= 0:
-                break
+        if n_selected_features and len(F) == n_selected_features:
+            break
+        if not n_selected_features and j_cmim <= 0:
+            break
 
         # we assign an extreme small value to j_cmim to ensure it is smaller than all possible values of j_cmim
         j_cmim = -1000000000000

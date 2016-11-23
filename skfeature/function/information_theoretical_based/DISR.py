@@ -1,9 +1,9 @@
-from builtins import range
 from skfeature.utility.entropy_estimators import *
 from skfeature.utility.mutual_information import conditional_entropy
+from builtins import range
 
 
-def disr(X, y, **kwargs):
+def disr(X, y, n_selected_features=None, **kwargs):
     """
     This function implement the DISR feature selection.
     The scoring criteria is calculated based on the formula j_disr=sum_j(I(f,fj;y)/H(f,fj,y))
@@ -32,12 +32,6 @@ def disr(X, y, **kwargs):
     n_samples, n_features = X.shape
     # index of selected features, initialized to be empty
     F = []
-    # indicate whether the user specifies the number of features
-    is_n_selected_features_specified = False
-
-    if 'n_selected_features' in list(kwargs.keys()):
-        n_selected_features = kwargs['n_selected_features']
-        is_n_selected_features_specified = True
 
     # sum stores sum_j(I(f,fj;y)/H(f,fj,y)) for each feature f
     sum = np.zeros(n_features)
@@ -57,12 +51,10 @@ def disr(X, y, **kwargs):
             F.append(idx)
             f_select = X[:, idx]
 
-        if is_n_selected_features_specified is True:
-            if len(F) == n_selected_features:
-                break
-        if is_n_selected_features_specified is not True:
-            if j_disr <= 0:
-                break
+        if n_selected_features and len(F) == n_selected_features:
+            break
+        if not n_selected_features and j_disr <= 0:
+            break
 
         # we assign an extreme small value to j_disr to ensure that it is smaller than all possible value of j_disr
         j_disr = -1000000000000
@@ -70,7 +62,8 @@ def disr(X, y, **kwargs):
             if i not in F:
                 f = X[:, i]
                 t1 = midd(f_select, y) + cmidd(f, y, f_select)
-                t2 = entropyd(f) + conditional_entropy(f_select, f) + (conditional_entropy(y, f_select) - cmidd(y, f, f_select))
+                t2 = entropyd(f) + conditional_entropy(f_select, f) + (
+                    conditional_entropy(y, f_select) - cmidd(y, f, f_select))
                 sum[i] += np.true_divide(t1, t2)
                 # record the largest j_disr and the corresponding feature index
                 if sum[i] > j_disr:
@@ -80,4 +73,3 @@ def disr(X, y, **kwargs):
         f_select = X[:, idx]
 
     return np.array(F)
-
