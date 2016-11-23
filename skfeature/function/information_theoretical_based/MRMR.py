@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from . import LCSI
 
 
-def mrmr(X, y, **kwargs):
+def mrmr(X, y, n_selected_features=None, **kwargs):
     """
     This function implements the MRMR feature selection
 
@@ -25,9 +25,4 @@ def mrmr(X, y, **kwargs):
     ---------
     Brown, Gavin et al. "Conditional Likelihood Maximisation: A Unifying Framework for Information Theoretic Feature Selection." JMLR 2012.
     """
-    if 'n_selected_features' in list(kwargs.keys()):
-        n_selected_features = kwargs['n_selected_features']
-        F = LCSI.lcsi(X, y, gamma=0, function_name='MRMR', n_selected_features=n_selected_features)
-    else:
-        F = LCSI.lcsi(X, y, gamma=0, function_name='MRMR')
-    return F
+    return LCSI.lcsi(X, y, gamma=0, function_name='MRMR', n_selected_features=n_selected_features)

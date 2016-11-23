@@ -4,7 +4,7 @@ from past.utils import old_div
 from skfeature.utility.entropy_estimators import *
 
 
-def lcsi(X, y, **kwargs):
+def lcsi(X, y, n_selected_features=None, beta=None, gamma=None, function_name=None, **kwargs):
     """
     This function implements the basic scoring criteria for linear combination of shannon information term.
     The scoring criteria is calculated based on the formula j_cmi=I(f;y)-beta*sum_j(I(fj;f))+gamma*sum(I(fj;f|y))
@@ -39,16 +39,6 @@ def lcsi(X, y, **kwargs):
     n_samples, n_features = X.shape
     # index of selected features, initialized to be empty
     F = []
-    # indicate whether the user specifies the number of features
-    is_n_selected_features_specified = False
-    # initialize the parameters
-    if 'beta' in list(kwargs.keys()):
-        beta = kwargs['beta']
-    if 'gamma' in list(kwargs.keys()):
-        gamma = kwargs['gamma']
-    if 'n_selected_features' in list(kwargs.keys()):
-        n_selected_features = kwargs['n_selected_features']
-        is_n_selected_features_specified = True
 
     # select the feature whose j_cmi is the largest
     # t1 stores I(f;y) for each feature f
@@ -71,19 +61,17 @@ def lcsi(X, y, **kwargs):
             F.append(idx)
             f_select = X[:, idx]
 
-        if is_n_selected_features_specified is True:
-            if len(F) == n_selected_features:
-                break
-        if is_n_selected_features_specified is not True:
-            if j_cmi < 0:
-                break
+        if n_selected_features and len(F) == n_selected_features:
+            break
+        if not n_selected_features and j_cmi < 0:
+            break
 
         # we assign an extreme small value to j_cmi to ensure it is smaller than all possible values of j_cmi
         j_cmi = -1000000000000
-        if 'function_name' in list(kwargs.keys()):
-            if kwargs['function_name'] == 'MRMR':
+        if function_name:
+            if function_name == 'MRMR':
                 beta = old_div(1.0, len(F))
-            elif kwargs['function_name'] == 'JMI':
+            elif function_name == 'JMI':
                 beta = old_div(1.0, len(F))
                 gamma = old_div(1.0, len(F))
         for i in range(n_features):
@@ -101,8 +89,3 @@ def lcsi(X, y, **kwargs):
         f_select = X[:, idx]
 
     return np.array(F)
-
-
-
-
-
