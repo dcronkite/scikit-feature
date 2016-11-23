@@ -8,7 +8,7 @@ import numpy as np
 from skfeature.utility.sparse_learning import tree_lasso_projection, tree_norm
 
 
-def group_fs(X, y, z1, z2, idx, **kwargs):
+def group_fs(X, y, z1, z2, idx, verbose=False, **kwargs):
     """
     This function implements supervised sparse group feature selection with least square loss, i.e.,
     min_{w} ||Xw-y||_2^2 + z_1||w||_1 + z_2*sum_{i} h_{i}||w_{G_{i}}|| where h_i is the weight for the i-th group
@@ -46,10 +46,6 @@ def group_fs(X, y, z1, z2, idx, **kwargs):
         Liu, Jun, et al. "Moreau-Yosida Regularization for Grouped Tree Structure Learning." NIPS. 2010.
         Liu, Jun, et al. "SLEP: Sparse Learning with Efficient Projections." http://www.public.asu.edu/~jye02/Software/SLEP, 2009.
     """
-    if 'verbose' not in kwargs:
-        verbose = False
-    else:
-        verbose = kwargs['verbose']
 
     # starting point initialization
     n_samples, n_features = X.shape

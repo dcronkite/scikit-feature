@@ -12,8 +12,7 @@ def best_map(l1, l2):
     Permute labels of l2 to match l1 as much as possible
     """
     if len(l1) != len(l2):
-        print("L1.shape must == L2.shape")
-        exit(0)
+        ValueError("L1.shape must == L2.shape")
 
     label1 = np.unique(l1)
     n_class1 = len(label1)

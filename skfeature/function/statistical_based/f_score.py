@@ -19,7 +19,6 @@ def f_score(X, y):
     F: {numpy array}, shape (n_features,)
         f-score for each feature
     """
-
     F, pval = f_classif(X, y)
     return F
 

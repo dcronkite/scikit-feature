@@ -18,7 +18,7 @@ def main():
 
     # construct affinity matrix
     kwargs_W = {"metric": "euclidean", "neighbor_mode": "knn", "weight_mode": "heat_kernel", "k": 5, 't': 1}
-    W = construct_W.construct_W(X, **kwargs_W)
+    W = construct_W.construct_w(X, **kwargs_W)
 
     # obtain the scores of features
     score = lap_score.lap_score(X, W=W)

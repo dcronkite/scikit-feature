@@ -7,7 +7,7 @@ from scipy.sparse import *
 from sklearn.metrics.pairwise import pairwise_distances
 
 
-def construct_W(X, **kwargs):
+def construct_w(X, y=None, metric='cosine', neighbor_mode='knn', weight_mode='binary', k=5, t=1, fisher_score=False, relief_f=False, **kwargs):
     """
     Construct the affinity matrix W through different ways
 
@@ -60,46 +60,22 @@ def construct_W(X, **kwargs):
         output affinity matrix W
     """
 
-    # default metric is 'cosine'
-    if 'metric' not in list(kwargs.keys()):
-        kwargs['metric'] = 'cosine'
-
     # default neighbor mode is 'knn' and default neighbor size is 5
-    if 'neighbor_mode' not in list(kwargs.keys()):
-        kwargs['neighbor_mode'] = 'knn'
-    if kwargs['neighbor_mode'] == 'knn' and 'k' not in list(kwargs.keys()):
-        kwargs['k'] = 5
-    if kwargs['neighbor_mode'] == 'supervised' and 'k' not in list(kwargs.keys()):
-        kwargs['k'] = 5
-    if kwargs['neighbor_mode'] == 'supervised' and 'y' not in list(kwargs.keys()):
-        print ('Warning: label is required in the supervised neighborMode!!!')
-        exit(0)
+    if neighbor_mode == 'supervised' and not y:
+        ValueError('Label is required in the supervised neighborMode.')
 
     # default weight mode is 'binary', default t in heat kernel mode is 1
-    if 'weight_mode' not in list(kwargs.keys()):
-        kwargs['weight_mode'] = 'binary'
-    if kwargs['weight_mode'] == 'heat_kernel':
-        if kwargs['metric'] != 'euclidean':
-            kwargs['metric'] = 'euclidean'
-        if 't' not in list(kwargs.keys()):
-            kwargs['t'] = 1
-    elif kwargs['weight_mode'] == 'cosine':
-        if kwargs['metric'] != 'cosine':
-            kwargs['metric'] = 'cosine'
-
-    # default fisher_score and reliefF mode are 'false'
-    if 'fisher_score' not in list(kwargs.keys()):
-        kwargs['fisher_score'] = False
-    if 'reliefF' not in list(kwargs.keys()):
-        kwargs['reliefF'] = False
+    if 'weight_mode' == 'heat_kernel':
+        metric = 'euclidean'
+    elif weight_mode == 'cosine':
+        metric = 'cosine'
 
     n_samples, n_features = np.shape(X)
 
     # choose 'knn' neighbor mode
-    if kwargs['neighbor_mode'] == 'knn':
-        k = kwargs['k']
-        if kwargs['weight_mode'] == 'binary':
-            if kwargs['metric'] == 'euclidean':
+    if neighbor_mode == 'knn':
+        if weight_mode == 'binary':
+            if metric == 'euclidean':
                 # compute pairwise euclidean distances
                 D = pairwise_distances(X)
                 D **= 2
@@ -118,7 +94,7 @@ def construct_W(X, **kwargs):
                 W = W - W.multiply(bigger) + np.transpose(W).multiply(bigger)
                 return W
 
-            elif kwargs['metric'] == 'cosine':
+            elif metric == 'cosine':
                 # normalize the data first
                 X_normalized = np.power(np.sum(X*X, axis=1), 0.5)
                 for i in range(n_samples):
@@ -139,8 +115,7 @@ def construct_W(X, **kwargs):
                 W = W - W.multiply(bigger) + np.transpose(W).multiply(bigger)
                 return W
 
-        elif kwargs['weight_mode'] == 'heat_kernel':
-            t = kwargs['t']
+        elif weight_mode == 'heat_kernel':
             # compute pairwise euclidean distances
             D = pairwise_distances(X)
             D **= 2
@@ -161,7 +136,7 @@ def construct_W(X, **kwargs):
             W = W - W.multiply(bigger) + np.transpose(W).multiply(bigger)
             return W
 
-        elif kwargs['weight_mode'] == 'cosine':
+        elif weight_mode == 'cosine':
             # normalize the data first
             X_normalized = np.power(np.sum(X*X, axis=1), 0.5)
             for i in range(n_samples):
@@ -184,14 +159,12 @@ def construct_W(X, **kwargs):
             return W
 
     # choose supervised neighborMode
-    elif kwargs['neighbor_mode'] == 'supervised':
-        k = kwargs['k']
+    elif neighbor_mode == 'supervised':
         # get true labels and the number of classes
-        y = kwargs['y']
         label = np.unique(y)
         n_classes = np.unique(y).size
         # construct the weight matrix W in a fisherScore way, W_ij = 1/n_l if yi = yj = l, otherwise W_ij = 0
-        if kwargs['fisher_score'] is True:
+        if fisher_score:
             W = lil_matrix((n_samples, n_samples))
             for i in range(n_classes):
                 class_idx = (y == label[i])
@@ -202,7 +175,7 @@ def construct_W(X, **kwargs):
         # construct the weight matrix W in a reliefF way, NH(x) and NM(x,y) denotes a set of k nearest
         # points to x with the same class as x, a different class (the class y), respectively. W_ij = 1 if i = j;
         # W_ij = 1/k if x_j \in NH(x_i); W_ij = -1/(c-1)k if x_j \in NM(x_i, y)
-        if kwargs['reliefF'] is True:
+        if relief_f is True:
             # when xj in NH(xi)
             G = np.zeros((n_samples*(k+1), 3))
             id_now = 0
@@ -247,8 +220,8 @@ def construct_W(X, **kwargs):
             W = W1 + W2
             return W
 
-        if kwargs['weight_mode'] == 'binary':
-            if kwargs['metric'] == 'euclidean':
+        if weight_mode == 'binary':
+            if metric == 'euclidean':
                 G = np.zeros((n_samples*(k+1), 3))
                 id_now = 0
                 for i in range(n_classes):
@@ -270,7 +243,7 @@ def construct_W(X, **kwargs):
                 W = W - W.multiply(bigger) + np.transpose(W).multiply(bigger)
                 return W
 
-            if kwargs['metric'] == 'cosine':
+            if metric == 'cosine':
                 # normalize the data first
                 X_normalized = np.power(np.sum(X*X, axis=1), 0.5)
                 for i in range(n_samples):
@@ -295,7 +268,7 @@ def construct_W(X, **kwargs):
                 W = W - W.multiply(bigger) + np.transpose(W).multiply(bigger)
                 return W
 
-        elif kwargs['weight_mode'] == 'heat_kernel':
+        elif weight_mode == 'heat_kernel':
             G = np.zeros((n_samples*(k+1), 3))
             id_now = 0
             for i in range(n_classes):
@@ -308,7 +281,6 @@ def construct_W(X, **kwargs):
                 idx = np.argsort(D, axis=1)
                 idx_new = idx[:, 0:k+1]
                 dump_new = dump[:, 0:k+1]
-                t = kwargs['t']
                 # compute pairwise heat kernel distances for instances in class i
                 dump_heat_kernel = np.exp(old_div(-dump_new,(2*t*t)))
                 n_smp_class = len(class_idx)*(k+1)
@@ -322,7 +294,7 @@ def construct_W(X, **kwargs):
             W = W - W.multiply(bigger) + np.transpose(W).multiply(bigger)
             return W
 
-        elif kwargs['weight_mode'] == 'cosine':
+        elif weight_mode == 'cosine':
             # normalize the data first
             X_normalized = np.power(np.sum(X*X, axis=1), 0.5)
             for i in range(n_samples):

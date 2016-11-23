@@ -2,7 +2,7 @@ from __future__ import division
 from past.utils import old_div
 import numpy as np
 from scipy.sparse import *
-from skfeature.utility.construct_W import construct_W
+from skfeature.utility.construct_W import construct_w
 
 
 def fisher_score(X, y):
@@ -33,7 +33,7 @@ def fisher_score(X, y):
 
     # Construct weight matrix W in a fisherScore way
     kwargs = {"neighbor_mode": "supervised", "fisher_score": True, 'y': y}
-    W = construct_W(X, **kwargs)
+    W = construct_w(X, **kwargs)
 
     # build the diagonal D matrix from affinity matrix W
     D = np.array(W.sum(axis=1))

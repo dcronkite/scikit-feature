@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from past.utils import old_div
 import numpy as np
-from skfeature.utility.construct_W import construct_W
+from skfeature.utility.construct_W import construct_w
 
 
 def trace_ratio(X, y, n_selected_features, style='fisher', verbose=False, **kwargs):
@@ -42,7 +42,7 @@ def trace_ratio(X, y, n_selected_features, style='fisher', verbose=False, **kwar
     if style is 'fisher':
         kwargs_within = {"neighbor_mode": "supervised", "fisher_score": True, 'y': y}
         # build within class and between class laplacian matrix L_w and L_b
-        W_within = construct_W(X, **kwargs_within)
+        W_within = construct_w(X, **kwargs_within)
         L_within = np.eye(n_samples) - W_within
         L_tmp = np.eye(n_samples) - old_div(np.ones([n_samples, n_samples]),n_samples)
         L_between = L_within - L_tmp
@@ -50,7 +50,7 @@ def trace_ratio(X, y, n_selected_features, style='fisher', verbose=False, **kwar
     if style is 'laplacian':
         kwargs_within = {"metric": "euclidean", "neighbor_mode": "knn", "weight_mode": "heat_kernel", "k": 5, 't': 1}
         # build within class and between class laplacian matrix L_w and L_b
-        W_within = construct_W(X, **kwargs_within)
+        W_within = construct_w(X, **kwargs_within)
         D_within = np.diag(np.array(W_within.sum(1))[:, 0])
         L_within = D_within - W_within
         W_between = old_div(np.dot(np.dot(D_within, np.ones([n_samples, n_samples])), D_within),np.sum(D_within))

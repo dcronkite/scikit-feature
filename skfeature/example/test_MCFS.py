@@ -18,7 +18,7 @@ def main():
 
     # construct affinity matrix
     kwargs = {"metric": "euclidean", "neighborMode": "knn", "weightMode": "heatKernel", "k": 5, 't': 1}
-    W = construct_W.construct_W(X, **kwargs)
+    W = construct_W.construct_w(X, **kwargs)
 
     num_fea = 100    # specify the number of selected features
     num_cluster = 20    # specify the number of clusters, it is usually set as the number of classes in the ground truth

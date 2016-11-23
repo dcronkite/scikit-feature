@@ -4,7 +4,7 @@ from past.utils import old_div
 import scipy
 import numpy as np
 from sklearn import linear_model
-from skfeature.utility.construct_W import construct_W
+from skfeature.utility.construct_W import construct_w
 
 
 def mcfs(X, n_selected_features, W=None, n_clusters=5, **kwargs):
@@ -35,7 +35,7 @@ def mcfs(X, n_selected_features, W=None, n_clusters=5, **kwargs):
 
     # use the default affinity matrix
     if not W:
-        W = construct_W(X)
+        W = construct_w(X)
 
     # solve the generalized eigen-decomposition problem and get the top K
     # eigen-vectors with respect to the smallest eigenvalues

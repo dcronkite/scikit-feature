@@ -19,7 +19,7 @@ def main():
 
     # construct affinity matrix
     kwargs = {"metric": "euclidean", "neighborMode": "knn", "weightMode": "heatKernel", "k": 5, 't': 1}
-    W = construct_W.construct_W(X, **kwargs)
+    W = construct_W.construct_w(X, **kwargs)
 
     # obtain the feature weight matrix
     Weight = NDFS.ndfs(X, W=W, n_clusters=20)

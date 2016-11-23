@@ -42,8 +42,7 @@ def t_score(X, y):
             t1 = np.true_divide(std1**2, n1)
             F[i] = np.true_divide(t, (t0 + t1)**0.5)
     else:
-        print('y should be guaranteed to a binary class vector')
-        exit(0)
+        ValueError('y should be guaranteed to a binary class vector')
     return np.abs(F)
 
 
@@ -53,4 +52,3 @@ def feature_ranking(F):
     """
     idx = np.argsort(F)
     return idx[::-1]
-

@@ -86,4 +86,3 @@ def cfs(X, y):
                         if M[len(M)-4] <= M[len(M)-5]:
                             break
     return np.array(F)
-

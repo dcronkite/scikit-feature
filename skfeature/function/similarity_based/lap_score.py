@@ -2,7 +2,7 @@ from __future__ import division
 from past.utils import old_div
 import numpy as np
 from scipy.sparse import *
-from skfeature.utility.construct_W import construct_W
+from skfeature.utility.construct_W import construct_w
 
 
 def lap_score(X, W=None, **kwargs):
@@ -33,7 +33,7 @@ def lap_score(X, W=None, **kwargs):
 
     # if 'W' is not specified, use the default W
     if not W:
-        W = construct_W(X)
+        W = construct_w(X)
     # build the diagonal D matrix from affinity matrix W
     D = np.array(W.sum(axis=1))
     L = W

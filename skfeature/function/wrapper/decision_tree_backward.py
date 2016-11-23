@@ -58,5 +58,3 @@ def decision_tree_backward(X, y, n_selected_features):
         F.remove(idx)
         count -= 1
     return np.array(F)
-
-

@@ -22,15 +22,15 @@ def entropy(x, k=3, base=2):
     e.g. x = [[1.3],[3.7],[5.1],[2.4]] if x is a one-dimensional scalar and we have four samples
     """
 
-    assert k <= len(x)-1, "Set k smaller than num. samples - 1"
+    assert k <= len(x) - 1, "Set k smaller than num. samples - 1"
     d = len(x[0])
     N = len(x)
     intens = 1e-10  # small noise to break degeneracy, see doc.
     x = [list(p + intens * nr.rand(len(x[0]))) for p in x]
     tree = ss.cKDTree(x)
-    nn = [tree.query(point, k+1, p=float('inf'))[0][k] for point in x]
-    const = digamma(N)-digamma(k) + d*log(2)
-    return old_div((const + d*np.mean(list(map(log, nn)))),log(base))
+    nn = [tree.query(point, k + 1, p=float('inf'))[0][k] for point in x]
+    const = digamma(N) - digamma(k) + d * log(2)
+    return old_div((const + d * np.mean(list(map(log, nn)))), log(base))
 
 
 def mi(x, y, k=3, base=2):
@@ -47,9 +47,9 @@ def mi(x, y, k=3, base=2):
     points = zip2(x, y)
     # Find nearest neighbors in joint space, p=inf means max-norm
     tree = ss.cKDTree(points)
-    dvec = [tree.query(point, k+1, p=float('inf'))[0][k] for point in points]
+    dvec = [tree.query(point, k + 1, p=float('inf'))[0][k] for point in points]
     a, b, c, d = avgdigamma(x, dvec), avgdigamma(y, dvec), digamma(k), digamma(len(x))
-    return old_div((-a-b+c+d),log(base))
+    return old_div((-a - b + c + d), log(base))
 
 
 def cmi(x, y, z, k=3, base=2):
@@ -67,9 +67,9 @@ def cmi(x, y, z, k=3, base=2):
     points = zip2(x, y, z)
     # Find nearest neighbors in joint space, p=inf means max-norm
     tree = ss.cKDTree(points)
-    dvec = [tree.query(point, k+1, p=float('inf'))[0][k] for point in points]
+    dvec = [tree.query(point, k + 1, p=float('inf'))[0][k] for point in points]
     a, b, c, d = avgdigamma(zip2(x, z), dvec), avgdigamma(zip2(y, z), dvec), avgdigamma(z, dvec), digamma(k)
-    return old_div((-a-b+c+d),log(base))
+    return old_div((-a - b + c + d), log(base))
 
 
 def kldiv(x, xp, k=3, base=2):
@@ -84,12 +84,12 @@ def kldiv(x, xp, k=3, base=2):
     d = len(x[0])
     n = len(x)
     m = len(xp)
-    const = log(m) - log(n-1)
+    const = log(m) - log(n - 1)
     tree = ss.cKDTree(x)
     treep = ss.cKDTree(xp)
-    nn = [tree.query(point, k+1, p=float('inf'))[0][k] for point in x]
-    nnp = [treep.query(point, k, p=float('inf'))[0][k-1] for point in x]
-    return old_div((const + d*np.mean(list(map(log, nnp)))-d*np.mean(list(map(log, nn)))),log(base))
+    nn = [tree.query(point, k + 1, p=float('inf'))[0][k] for point in x]
+    nnp = [treep.query(point, k, p=float('inf'))[0][k - 1] for point in x]
+    return old_div((const + d * np.mean(list(map(log, nnp))) - d * np.mean(list(map(log, nn)))), log(base))
 
 
 # Discrete estimators
@@ -106,7 +106,7 @@ def midd(x, y):
     Discrete mutual information estimator given a list of samples which can be any hashable object
     """
 
-    return -entropyd(list(zip(x, y)))+entropyd(x)+entropyd(y)
+    return -entropyd(list(zip(x, y))) + entropyd(x) + entropyd(y)
 
 
 def cmidd(x, y, z):
@@ -114,7 +114,7 @@ def cmidd(x, y, z):
     Discrete mutual information estimator given a list of samples which can be any hashable object
     """
 
-    return entropyd(list(zip(y, z)))+entropyd(list(zip(x, z)))-entropyd(list(zip(x, y, z)))-entropyd(z)
+    return entropyd(list(zip(y, z))) + entropyd(list(zip(x, z))) - entropyd(list(zip(x, y, z))) - entropyd(z)
 
 
 def hist(sx):
@@ -122,12 +122,12 @@ def hist(sx):
     d = dict()
     for s in sx:
         d[s] = d.get(s, 0) + 1
-    return [old_div(float(z),len(sx)) for z in list(d.values())]
+    return [old_div(float(z), len(sx)) for z in list(d.values())]
 
 
 def entropyfromprobs(probs, base=2):
     # Turn a normalized list of probabilities of discrete outcomes into entropy (base 2)
-    return old_div(-sum(map(elog, probs)),log(base))
+    return old_div(-sum(map(elog, probs)), log(base))
 
 
 def elog(x):
@@ -135,7 +135,7 @@ def elog(x):
     if x <= 0. or x >= 1.:
         return 0
     else:
-        return x*log(x)
+        return x * log(x)
 
 
 # Mixed estimators
@@ -147,18 +147,19 @@ def micd(x, y, k=3, base=2, warning=True):
     n = len(y)
     word_dict = dict()
     for sample in y:
-        word_dict[sample] = word_dict.get(sample, 0) + old_div(1.,n)
+        word_dict[sample] = word_dict.get(sample, 0) + old_div(1., n)
     yvals = list(set(word_dict.keys()))
 
     mi = overallentropy
     for yval in yvals:
         xgiveny = [x[i] for i in range(n) if y[i] == yval]
         if k <= len(xgiveny) - 1:
-            mi -= word_dict[yval]*entropy(xgiveny, k, base)
+            mi -= word_dict[yval] * entropy(xgiveny, k, base)
         else:
             if warning:
-                print("Warning, after conditioning, on y=", yval, " insufficient data. Assuming maximal entropy in this case.")
-            mi -= word_dict[yval]*overallentropy
+                print("Warning, after conditioning, on y={} insufficient data. "
+                      "Assuming maximal entropy in this case.".format(yval))
+            mi -= word_dict[yval] * overallentropy
     return mi  # units already applied
 
 
@@ -167,7 +168,6 @@ def vectorize(scalarlist):
     """
     Turn a list of scalars into a list of one-d vectors
     """
-
     return [(x,) for x in scalarlist]
 
 
@@ -179,7 +179,7 @@ def shuffle_test(measure, x, y, z=False, ns=200, ci=0.95, **kwargs):
     e.g. Keyword arguments can be passed. Mutual information and CMI should have a mean near zero.
     """
 
-    xp = x[:]   # A copy that we can shuffle
+    xp = x[:]  # A copy that we can shuffle
     outputs = []
     for i in range(ns):
         random.shuffle(xp)
@@ -188,7 +188,7 @@ def shuffle_test(measure, x, y, z=False, ns=200, ci=0.95, **kwargs):
         else:
             outputs.append(measure(xp, y, **kwargs))
     outputs.sort()
-    return np.mean(outputs), (outputs[int((1.-ci)/2*ns)], outputs[int((1.+ci)/2*ns)])
+    return np.mean(outputs), (outputs[int((1. - ci) / 2 * ns)], outputs[int((1. + ci) / 2 * ns)])
 
 
 # Internal functions
@@ -202,8 +202,8 @@ def avgdigamma(points, dvec):
         dist = dvec[i]
         # subtlety, we don't include the boundary point,
         # but we are implicitly adding 1 to kraskov def bc center point is included
-        num_points = len(tree.query_ball_point(points[i], dist-1e-15, p=float('inf')))
-        avg += old_div(digamma(num_points),N)
+        num_points = len(tree.query_ball_point(points[i], dist - 1e-15, p=float('inf')))
+        avg += old_div(digamma(num_points), N)
     return avg
 
 
