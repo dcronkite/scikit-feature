@@ -1,6 +1,8 @@
 ===============================
 scikit-feature
 ===============================
+NOTE: This fork adds Python 3 support using Python-Future's futurize. This should allow continued Python 2 compatibility, but this has not been verified.
+
 Feature selection repository scikit-feature in Python (DMML Lab@ASU). 
 
 scikit-feature is an open-source feature selection repository in Python developed by Data Mining and Machine Learning Lab at Arizona State University. It is built upon one widely used machine learning package scikit-learn and two scientific computing packages Numpy and Scipy. scikit-feature contains around 40 popular feature selection algorithms, including traditional feature selection algorithms and some structural and streaming feature selection algorithms. 
@@ -9,7 +11,7 @@ It serves as a platform for facilitating feature selection application, research
 
 ##Installing scikit-feature
 ###Prerequisites:
-Python 2.7
+Python 3.3+ (should still work with Python 2.7)
 
 NumPy
 
