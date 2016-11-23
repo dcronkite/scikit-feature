@@ -1,7 +1,7 @@
 from __future__ import division
 from past.utils import old_div
 import numpy as np
-from scipy.sparse import *
+from scipy.sparse import diags
 from skfeature.utility.construct_W import construct_w
 
 

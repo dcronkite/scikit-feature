@@ -4,6 +4,7 @@ scikit-feature
 ## Note 
 * This fork adds Python 3 support using Python-Future's [futurize](https://python-mfuture.org/futurize.html). (This should allow continued Python 2 compatibility, but this has not been verified.)
 * I intend to continue incorporating any additional changes and updates from [source project](https://github.com/jundongl/scikit-feature), though this will only realistically happen when I make modifications or see an issue.
+* Parameterized functions with keywords arguments rather than having to constantly parse `kwargs`.
 
 ## About
 Feature selection repository scikit-feature in Python (DMML Lab@ASU). 
