@@ -5,10 +5,10 @@ from past.utils import old_div
 import math
 import numpy as np
 from numpy import linalg as LA
-from skfeature.utility.sparse_learning import euclidean_projection, calculate_l21_norm
+from skfeature.utility.sparse_learning import euclidean_projection, calculate_l21_norm, feature_ranking
 
 
-def proximal_gradient_descent(X, Y, z, verbose=False, **kwargs):
+def proximal_gradient_descent(X, Y, z=0.1, verbose=False, **kwargs):
     """
     This function implements supervised sparse feature selection via l2,1 norm, i.e.,
     min_{W} sum_{i}log(1+exp(-yi*(W'*x+C))) + z*||W||_{2,1}
@@ -40,6 +40,16 @@ def proximal_gradient_descent(X, Y, z, verbose=False, **kwargs):
     """
     # Starting point initialization #
     n_samples, n_features = X.shape
+
+    if len(Y.shape) == 1:
+        res = []
+        d = {x: i for i, x in enumerate(np.unique(Y))}
+        for yy in Y:
+            lst = [0] * len(d)
+            lst[d[yy]] = 1
+            res.append(lst)
+        Y = np.array(res)
+
     n_samples, n_classes = Y.shape
 
     # the indices of positive samples
@@ -152,4 +162,4 @@ def proximal_gradient_descent(X, Y, z, verbose=False, **kwargs):
         # determine weather converge
         if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step - 1]) < 1e-3:
             break
-    return W, obj, value_gamma
+    return feature_ranking(W)  #obj, value_gamma

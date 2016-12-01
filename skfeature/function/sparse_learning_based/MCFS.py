@@ -55,7 +55,7 @@ def mcfs(X, n_selected_features, W=None, n_clusters=5, **kwargs):
         clf = linear_model.Lars(n_nonzero_coefs=n_selected_features)
         clf.fit(X, Y[:, i])
         W[:, i] = clf.coef_
-    return W
+    return feature_ranking(W)
 
 
 def feature_ranking(W):

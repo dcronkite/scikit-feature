@@ -7,10 +7,12 @@ import numpy as np
 import sys
 import math
 import sklearn.cluster
+from skfeature.utility.sparse_learning import feature_ranking
+
 from skfeature.utility.construct_w import construct_w
 
 
-def ndfs(X, W=None, alpha=1, beta=1, gamma=10e8, F0=None, n_clusters=None, verbose=False, **kwargs):
+def ndfs(X, y, W=None, alpha=1, beta=1, gamma=10e8, F0=None, n_clusters=10, verbose=False, **kwargs):
     """
     This function implement unsupervised feature selection using nonnegative spectral analysis, i.e.,
     min_{F,W} Tr(F^T L F) + alpha*(||XW-F||_F^2 + beta*||W||_{2,1}) + gamma/2 * ||F^T F - I||_F^2
@@ -50,11 +52,7 @@ def ndfs(X, W=None, alpha=1, beta=1, gamma=10e8, F0=None, n_clusters=None, verbo
         W = construct_w(X)
 
     if not F0:
-        if n_clusters:
-            # initialize F
-            F0 = kmeans_initialization(X, n_clusters)
-        else:
-            raise ValueError('Either F0 or n_clusters should be provided.')
+        F0 = kmeans_initialization(X, n_clusters)
 
     n_samples, n_features = X.shape
 
@@ -93,7 +91,7 @@ def ndfs(X, W=None, alpha=1, beta=1, gamma=10e8, F0=None, n_clusters=None, verbo
 
         if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step-1]) < 1e-3:
             break
-    return W
+    return feature_ranking(W)
 
 
 def kmeans_initialization(X, n_clusters):

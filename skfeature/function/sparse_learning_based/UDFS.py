@@ -58,6 +58,7 @@ def udfs(X, gamma=0.1, k=5, n_clusters=5, verbose=False, **kwargs):
 
         if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step-1]) < 1e-3:
             break
+    print(W)
     return W
 
 

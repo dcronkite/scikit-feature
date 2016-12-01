@@ -62,7 +62,7 @@ def gini_index(X, y):
 
             if value < gini[i]:
                 gini[i] = value
-    return gini
+    return feature_ranking(gini)
 
 
 def feature_ranking(W):

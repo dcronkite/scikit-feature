@@ -19,7 +19,7 @@ def chi_square(X, y):
         chi-square score for each feature
     """
     F, pval = chi2(X, y)
-    return F
+    return feature_ranking(F)
 
 
 def feature_ranking(F):

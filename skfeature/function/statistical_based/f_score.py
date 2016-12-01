@@ -20,7 +20,7 @@ def f_score(X, y):
         f-score for each feature
     """
     F, pval = f_classif(X, y)
-    return F
+    return feature_ranking(F)
 
 
 def feature_ranking(F):
